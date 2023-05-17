@@ -1,14 +1,15 @@
 package Global;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-// import java.util.List;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class Part extends UnicastRemoteObject implements IPart {   
     private int codigo; //automaticamente gerado
     private String nome;
     private String descricao;
-    // private List<Subcomponentes> subComp;
+    private HashMap<Part, Integer> subparts;
+    // primitiva: lista de componentes vazia
 
     public Part() throws RemoteException {
         this.codigo = gerarCodigo();
@@ -24,10 +25,6 @@ public class Part extends UnicastRemoteObject implements IPart {
         UUID uuid = UUID.randomUUID();
         long codigoLong = uuid.getMostSignificantBits() & Long.MAX_VALUE;
         return (int) codigoLong;
-    }
-
-    public String teste() throws RemoteException {
-        return "Teste";
     }
 
     public void adicionarSubcomponente(Part subPart, int quantidade) throws RemoteException {
