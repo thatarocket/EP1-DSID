@@ -19,6 +19,6 @@ java Cliente
 **Servidor**
 
 ```
-javac Servidor
+javac Servidor.java
 java Servidor
 ```
