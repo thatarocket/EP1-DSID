@@ -1,10 +1,10 @@
-import java.util.List;
+import java.util.HashMap;
 
 import Global.Part;
 import Global.IPartRepository;
 
 public class ContextoAtual {
-    List<Part> subAtuais;
+    HashMap<Part, Integer> subtAtual;
     IPartRepository repAtual;
     Part partAtual;
 }
