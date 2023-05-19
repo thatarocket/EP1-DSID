@@ -27,7 +27,38 @@ public class Part extends UnicastRemoteObject implements IPart {
         return (int) codigoLong;
     }
 
-    public void adicionarSubcomponente(Part subPart, int quantidade) throws RemoteException {
-        
+    public int getCodigo() {
+        return codigo;
     }
+
+    public void setCodigo(int codigo) {
+        this.codigo = codigo;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public HashMap<Part, Integer> getSubparts() {
+        return subparts;
+    }
+
+    public void setSubparts(HashMap<Part, Integer> subparts) {
+        this.subparts = subparts;
+    }
+
+    
+
 }
