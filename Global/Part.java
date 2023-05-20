@@ -1,10 +1,10 @@
 package Global;
+import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class Part extends UnicastRemoteObject implements IPart {   
+public class Part implements IPart, Serializable {   
     private int codigo; //automaticamente gerado
     private String nome;
     private String descricao;
@@ -59,6 +59,27 @@ public class Part extends UnicastRemoteObject implements IPart {
         this.subparts = subparts;
     }
 
-    
+    @Override
+    public String toString() {
+        StringBuilder subparts = new StringBuilder();
 
+        if (this.subparts != null) {
+            this.subparts.forEach((part, quant) -> {
+                subparts.append(String.format(
+                    "\tCodigo: %s; Nome: %s; Quant: %s",
+                    part.codigo,
+                    part.nome,
+                    quant
+                ));
+            });
+        }
+
+        return String.format(
+            "Codigo: %s\nNome: %s\nDescricao: %s\nSubparts:\n%s",
+            this.codigo,
+            this.nome,
+            this.descricao,
+            subparts
+        );
+    }
 }

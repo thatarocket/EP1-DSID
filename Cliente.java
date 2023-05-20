@@ -1,16 +1,214 @@
 import java.rmi.Naming;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 import Global.IPartRepository;
+import Global.Part;
 
 public class Cliente {
+
+    static Scanner scanner = new Scanner(System.in);
+    static ContextoAtual contextoAtual;
     public static void main(String[] args) throws Exception{
         try {
-            String objName = "rmi://localhost:1099/PartRepository";
-            IPartRepository part = (IPartRepository) Naming.lookup(objName);
-            System.out.println(part.funcionando());
+            contextoAtual = new ContextoAtual();
+            contextoAtual.subtAtual = new HashMap<Part,Integer>();
+            opcoes();
         }
         catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
         }
     }
+
+    public static void opcoes() throws Exception{
+        System.out.println("--------------------------------------------------");
+        System.out.println("Escolha a opção desejada! (Pelo número)");
+        System.out.println("1 - bind");
+        System.out.println("2 - listp");
+        System.out.println("3 - getp");
+        System.out.println("4 - showp");
+        System.out.println("5 - clearlist");
+        System.out.println("6 - addsubpart");
+        System.out.println("7 - addp");
+        System.out.println("8 - quit");
+        select();
+    }
+
+    public static void select() throws Exception {
+        int input = Integer.parseInt(scanner.nextLine());
+        
+        switch(input) {
+            case 1:
+                conectar();
+                break;
+            case 2:
+                listP();
+                break;
+            case 3:
+                getP();
+                break;
+            case 4:
+                showP();
+                break;
+            case 5:
+                clearList();
+                break;
+            case 6:
+                addSubPart();
+                break;
+            case 7:
+                addP();
+                break;
+            case 8:
+                quit();
+            default:
+                System.out.println("Opção inválida!");
+                select();
+                break;           
+        }
+    }
+
+    public static void conectar() throws Exception{
+        try {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Digite o nome do repositorio: ");
+            String nomeRep = scanner.nextLine();
+
+            String objName = "rmi://localhost:1099/" + nomeRep;
+            IPartRepository part = (IPartRepository) Naming.lookup(objName);
+            contextoAtual.repAtual = part;
+            System.out.println("Conectado com sucesso!");
+            System.out.println("--------------------------------------------------");
+            opcoes();
+        }
+        catch (Exception e) {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Erro: " + e.getMessage());
+            System.out.println("Nome incorreto ou servidor não encontrado!");
+            System.out.println("--------------------------------------------------");
+            opcoes();
+        }
+    }
+
+    public static void listP() throws Exception{
+        try {
+            System.out.println("--------------------------------------------------");
+            List<Part> result = contextoAtual.repAtual.listP(); 
+            if(result == null) {
+                System.out.println("Não há nenhuma part no repositório corrente!");
+            }
+            else {
+                System.out.println("Listando as parts...");
+                for(Part part : result) {
+                    System.out.println(part);
+                }
+            }
+            System.out.println("--------------------------------------------------");
+            opcoes();
+        }
+        catch (Exception e) {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Erro: " + e.getMessage());
+            System.out.println("--------------------------------------------------");
+            opcoes();
+        }
+    }
+
+    public static void getP() throws Exception {
+        try {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Digite o código da peça a ser buscada: ");
+            String codigo = scanner.nextLine();
+            int cod = Integer.parseInt(codigo);                        
+            Part alteracao = contextoAtual.repAtual.getP(cod);
+            
+            if(alteracao != null) {
+                System.out.println("Part encontrada!");
+                contextoAtual.partAtual = alteracao;
+                System.out.println("o Part atual foi atualizada!");
+            }
+            else {
+                System.out.println("Part não encontrada!");
+            }
+            System.out.println("--------------------------------------------------");
+            opcoes();
+        }
+        catch(Exception e) {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Erro: " + e.getMessage());
+            System.out.println("--------------------------------------------------");
+            opcoes();
+        }
+    }
+
+    public static void showP() throws Exception {
+        System.out.println("--------------------------------------------------");
+        if(contextoAtual.partAtual != null) {
+            System.out.println(contextoAtual.partAtual);
+        }
+        else {
+            System.out.println("Não há part");
+        }
+        System.out.println("--------------------------------------------------");
+        opcoes();
+    }
+
+    public static void clearList() throws Exception {
+        System.out.println("--------------------------------------------------");
+        contextoAtual.subtAtual.clear();
+        System.out.println("Subparts apagadas com sucesso!");
+        System.out.println("--------------------------------------------------");
+        opcoes();
+    }
+
+    public static void addSubPart() throws Exception {
+        try {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Digite o nome da peça a ser adicionada na subpeça: ");
+            String nome = scanner.nextLine();
+            System.out.println("Digite a descrição da peça a ser adicionada: ");
+            String descricao = scanner.nextLine();
+            System.out.println("Digite a quantidade da peça a ser adicionada: ");
+            int quant = Integer.parseInt(scanner.nextLine());
+
+            Part p = new Part(nome, descricao);
+            contextoAtual.partAtual = p;
+            contextoAtual.subtAtual.put(p,quant);
+
+            System.out.println("Subpart adicionada com sucesso!");
+            System.out.println("--------------------------------------------------");
+            opcoes();
+        }
+        catch(Exception e) {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Erro: " + e.getMessage());
+            System.out.println("--------------------------------------------------");
+            opcoes();
+        }
+    }
+
+    public static void addP() throws Exception {
+        System.out.println("--------------------------------------------------");
+        System.out.println("Digite o nome da peça a ser adicionada na subpeça: ");
+        String nome = scanner.nextLine();
+        System.out.println("Digite a descrição da peça a ser adicionada: ");
+        String descricao = scanner.nextLine();
+
+        Part p = new Part(nome, descricao);        
+        contextoAtual.partAtual = p;
+        contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
+        contextoAtual.repAtual.addP(contextoAtual.partAtual);
+
+        System.out.println("Part adicionada com sucesso!");
+        System.out.println("--------------------------------------------------");
+        opcoes();
+    }
+
+    public static void quit() throws Exception {
+        System.out.println("Saindo do programa...");
+        System.exit(0);
+    }
+
 }
+
