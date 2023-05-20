@@ -31,7 +31,9 @@ public class Cliente {
         System.out.println("5 - clearlist");
         System.out.println("6 - addsubpart");
         System.out.println("7 - addp");
-        System.out.println("8 - quit");
+        System.out.println("8 - showsub");
+        System.out.println("9 - unbind");
+        System.out.println("10 - quit");
         select();
     }
 
@@ -61,6 +63,12 @@ public class Cliente {
                 addP();
                 break;
             case 8:
+                showSub();
+                break;
+            case 9:
+                desconectar();
+                break;
+            case 10:
                 quit();
             default:
                 System.out.println("Opção inválida!");
@@ -78,15 +86,35 @@ public class Cliente {
             String objName = "rmi://localhost:1099/" + nomeRep;
             IPartRepository part = (IPartRepository) Naming.lookup(objName);
             contextoAtual.repAtual = part;
+            contextoAtual.nomeRepAtual = nomeRep;
+
             System.out.println("Conectado com sucesso!");
-            System.out.println("--------------------------------------------------");
             opcoes();
         }
         catch (Exception e) {
             System.out.println("--------------------------------------------------");
             System.out.println("Erro: " + e.getMessage());
             System.out.println("Nome incorreto ou servidor não encontrado!");
+            opcoes();
+        }
+    }
+
+    public static void desconectar() throws Exception {
+        try {
             System.out.println("--------------------------------------------------");
+            System.out.println("Desconectando do repositório " + contextoAtual.nomeRepAtual);
+            String objName = "rmi://localhost:1099/" + contextoAtual.nomeRepAtual;
+            Naming.unbind(objName);
+
+            contextoAtual.repAtual = null;
+            contextoAtual.nomeRepAtual = null;
+            
+            System.out.println("Desconectado com sucesso!");
+            opcoes();
+        }
+        catch(Exception e) {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Erro: " + e.getMessage());
             opcoes();
         }
     }
@@ -96,21 +124,19 @@ public class Cliente {
             System.out.println("--------------------------------------------------");
             List<Part> result = contextoAtual.repAtual.listP(); 
             if(result == null) {
-                System.out.println("Não há nenhuma part no repositório corrente!");
+                System.out.println("Não há nenhuma part no repositório corrente " + contextoAtual.nomeRepAtual + "!");
             }
             else {
-                System.out.println("Listando as parts...");
+                System.out.println("Listando as parts do repositório corrente: " + contextoAtual.nomeRepAtual);
                 for(Part part : result) {
                     System.out.println(part);
                 }
             }
-            System.out.println("--------------------------------------------------");
             opcoes();
         }
         catch (Exception e) {
             System.out.println("--------------------------------------------------");
             System.out.println("Erro: " + e.getMessage());
-            System.out.println("--------------------------------------------------");
             opcoes();
         }
     }
@@ -118,6 +144,7 @@ public class Cliente {
     public static void getP() throws Exception {
         try {
             System.out.println("--------------------------------------------------");
+            System.out.println("Repositório corrente: " + contextoAtual.nomeRepAtual);
             System.out.println("Digite o código da peça a ser buscada: ");
             String codigo = scanner.nextLine();
             int cod = Integer.parseInt(codigo);                        
@@ -131,13 +158,11 @@ public class Cliente {
             else {
                 System.out.println("Part não encontrada!");
             }
-            System.out.println("--------------------------------------------------");
             opcoes();
         }
         catch(Exception e) {
             System.out.println("--------------------------------------------------");
             System.out.println("Erro: " + e.getMessage());
-            System.out.println("--------------------------------------------------");
             opcoes();
         }
     }
@@ -150,7 +175,27 @@ public class Cliente {
         else {
             System.out.println("Não há part");
         }
+        opcoes();
+    }
+
+    public static void showSub() throws Exception {
         System.out.println("--------------------------------------------------");
+        if(contextoAtual.subtAtual.size() > 0) {
+            StringBuilder subparts = new StringBuilder();
+            contextoAtual.subtAtual.forEach((part, quant) -> {
+                subparts.append(String.format(
+                        "\tCodigo: %s; Nome: %s; Quant: %s",
+                    part.getCodigo(),
+                    part.getNome(),
+                    quant
+                ));
+            });            
+            System.out.println("Subparts: ");
+            System.out.println(subparts);
+        }
+        else {
+            System.out.println("Não há subparts");
+        }
         opcoes();
     }
 
@@ -158,7 +203,6 @@ public class Cliente {
         System.out.println("--------------------------------------------------");
         contextoAtual.subtAtual.clear();
         System.out.println("Subparts apagadas com sucesso!");
-        System.out.println("--------------------------------------------------");
         opcoes();
     }
 
@@ -177,20 +221,19 @@ public class Cliente {
             contextoAtual.subtAtual.put(p,quant);
 
             System.out.println("Subpart adicionada com sucesso!");
-            System.out.println("--------------------------------------------------");
             opcoes();
         }
         catch(Exception e) {
             System.out.println("--------------------------------------------------");
             System.out.println("Erro: " + e.getMessage());
-            System.out.println("--------------------------------------------------");
             opcoes();
         }
     }
 
     public static void addP() throws Exception {
         System.out.println("--------------------------------------------------");
-        System.out.println("Digite o nome da peça a ser adicionada na subpeça: ");
+        System.out.println("Repositório corrente: " + contextoAtual.nomeRepAtual);
+        System.out.println("Digite o nome da peça a ser adicionada: ");
         String nome = scanner.nextLine();
         System.out.println("Digite a descrição da peça a ser adicionada: ");
         String descricao = scanner.nextLine();
@@ -201,7 +244,6 @@ public class Cliente {
         contextoAtual.repAtual.addP(contextoAtual.partAtual);
 
         System.out.println("Part adicionada com sucesso!");
-        System.out.println("--------------------------------------------------");
         opcoes();
     }
 

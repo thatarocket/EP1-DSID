@@ -7,4 +7,5 @@ public class ContextoAtual {
     HashMap<Part, Integer> subtAtual;
     IPartRepository repAtual;
     Part partAtual;
+    String nomeRepAtual;
 }
