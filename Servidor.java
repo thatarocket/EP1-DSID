@@ -13,13 +13,13 @@ public class Servidor {
             IPartRepository part = new PartRepository();
             System.out.println("Digite o nome do servidor: ");
             String nomeServ = scanner.nextLine();
-
-            String objName = "rmi://localhost/" + nomeServ;
            
             System.out.println("Digite o numero da porta: ");
             int numPorta = Integer.parseInt(scanner.nextLine());
             
             LocateRegistry.createRegistry(numPorta);
+            
+            String objName = "rmi://localhost:" + numPorta + "/" + nomeServ;
 
             Naming.rebind(objName, part);
 

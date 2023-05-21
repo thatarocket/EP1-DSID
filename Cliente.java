@@ -101,6 +101,7 @@ public class Cliente {
             IPartRepository part = (IPartRepository) Naming.lookup(objName);
             contextoAtual.repAtual = part;
             contextoAtual.nomeRepAtual = nomeRep;
+            contextoAtual.portaAtual = numPorta;
 
             System.out.println("Conectado com sucesso!");
             opcoes();
@@ -119,7 +120,7 @@ public class Cliente {
         try {
             System.out.println("--------------------------------------------------");
             System.out.println("Desconectando do repositorio " + contextoAtual.nomeRepAtual);
-            String objName = "rmi://localhost:1099/" + contextoAtual.nomeRepAtual;
+            String objName = "rmi://localhost:"+ contextoAtual.portaAtual +"/" + contextoAtual.nomeRepAtual;
             Naming.unbind(objName);
 
             contextoAtual.repAtual = null;
@@ -259,8 +260,9 @@ public class Cliente {
             int quant = Integer.parseInt(scanner.nextLine());
 
             Part p = new Part(nome, descricao);
-            contextoAtual.partAtual = p;
+            //contextoAtual.partAtual = p;
             contextoAtual.subtAtual.put(p,quant);
+            contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
 
             System.out.println("Subpart adicionada com sucesso!");
             opcoes();
@@ -282,7 +284,7 @@ public class Cliente {
 
         Part p = new Part(nome, descricao);        
         contextoAtual.partAtual = p;
-        contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
+        //contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
         contextoAtual.repAtual.addP(contextoAtual.partAtual);
 
         System.out.println("Part adicionada com sucesso!");

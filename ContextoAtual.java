@@ -8,4 +8,5 @@ public class ContextoAtual {
     IPartRepository repAtual;
     Part partAtual;
     String nomeRepAtual;
+    int portaAtual;
 }
