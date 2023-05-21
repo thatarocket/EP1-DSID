@@ -4,13 +4,23 @@ import Global.PartRepository;
 
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
+import java.util.Scanner;
+
 public class Servidor {
+    static Scanner scanner = new Scanner (System.in);
     public static void main(String[] args) {
         try {
             IPartRepository part = new PartRepository();
-            String objName = "rmi://localhost/PartRepository";
+            System.out.println("Digite o nome do servidor: ");
+            String nomeServ = scanner.nextLine();
+
+            String objName = "rmi://localhost/" + nomeServ;
            
-            LocateRegistry.createRegistry(1099);
+            System.out.println("Digite o numero da porta: ");
+            int numPorta = Integer.parseInt(scanner.nextLine());
+            
+            LocateRegistry.createRegistry(numPorta);
+
             Naming.rebind(objName, part);
 
             System.out.println("Aguardando clientes...");

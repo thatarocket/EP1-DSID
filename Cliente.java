@@ -14,7 +14,9 @@ public class Cliente {
         try {
             contextoAtual = new ContextoAtual();
             contextoAtual.subtAtual = new HashMap<Part,Integer>();
-            opcoes();
+
+            conectar(); 
+            if(contextoAtual.partAtual != null) opcoes();
         }
         catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
@@ -22,18 +24,23 @@ public class Cliente {
     }
 
     public static void opcoes() throws Exception{
+        System.out.println();
+        System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
+        //if(contextoAtual.partAtual != null) System.out.println("Peca corrente: "+ contextoAtual.partAtual.getNome());
+
         System.out.println("--------------------------------------------------");
-        System.out.println("Escolha a opção desejada! (Pelo número)");
-        System.out.println("1 - bind");
-        System.out.println("2 - listp");
-        System.out.println("3 - getp");
-        System.out.println("4 - showp");
-        System.out.println("5 - clearlist");
-        System.out.println("6 - addsubpart");
-        System.out.println("7 - addp");
-        System.out.println("8 - showsub");
-        System.out.println("9 - unbind");
-        System.out.println("10 - quit");
+        System.out.println("Escolha a opcao desejada! (Pelo numero)");
+        System.out.println("1 - bind");        // Faz o cliente se conectar a outro servidor e muda o repositorio corrente
+        System.out.println("2 - listp");       //lista as pecas do repositorio corrente.
+        System.out.println("3 - infoRep");     // Informacoes do repositorio
+        System.out.println("4 - getp");        // Busca uma peca por codigo
+        System.out.println("5 - showp");       //  Mostra atributos da peca corrente.
+        System.out.println("6 - clearlist");   //  Esvazia a lista de sub-pecas corrente
+        System.out.println("7 - addsubpart");  // Adiciona a lista de sub-pecas corrente n unidades da peca corrente
+        System.out.println("8 - addp");        // Adiciona uma peca ao reposit´orio corrente.
+        System.out.println("9 - showsub");     // Mostra as subpartes
+        System.out.println("10 - unbind");     // desconectar do repositorio
+        System.out.println("11 - quit");       // Encerra a execucao do cliente
         select();
     }
 
@@ -48,30 +55,33 @@ public class Cliente {
                 listP();
                 break;
             case 3:
-                getP();
+                infoRep();
                 break;
             case 4:
-                showP();
+                getP();
                 break;
             case 5:
-                clearList();
+                showP();
                 break;
             case 6:
-                addSubPart();
+                clearList();
                 break;
             case 7:
-                addP();
+                addSubPart();
                 break;
             case 8:
-                showSub();
+                addP();
                 break;
             case 9:
-                desconectar();
+                showSub();
                 break;
             case 10:
+                desconectar();
+                break;
+            case 11:
                 quit();
             default:
-                System.out.println("Opção inválida!");
+                System.out.println("Opcao invalida! Coloque uma opcao valida:");
                 select();
                 break;           
         }
@@ -83,7 +93,11 @@ public class Cliente {
             System.out.println("Digite o nome do repositorio: ");
             String nomeRep = scanner.nextLine();
 
-            String objName = "rmi://localhost:1099/" + nomeRep;
+            System.out.println("Digite o numero da porta: ");
+            int numPorta = Integer.parseInt(scanner.nextLine());
+            
+            String objName = "rmi://localhost:" + numPorta + "/" + nomeRep;
+
             IPartRepository part = (IPartRepository) Naming.lookup(objName);
             contextoAtual.repAtual = part;
             contextoAtual.nomeRepAtual = nomeRep;
@@ -94,15 +108,17 @@ public class Cliente {
         catch (Exception e) {
             System.out.println("--------------------------------------------------");
             System.out.println("Erro: " + e.getMessage());
-            System.out.println("Nome incorreto ou servidor não encontrado!");
-            opcoes();
+            System.out.println("Nome incorreto ou servidor nao encontrado!");
+            System.out.println(contextoAtual.partAtual);
+            if(contextoAtual.partAtual == null) conectar();
+            else opcoes();
         }
     }
 
     public static void desconectar() throws Exception {
         try {
             System.out.println("--------------------------------------------------");
-            System.out.println("Desconectando do repositório " + contextoAtual.nomeRepAtual);
+            System.out.println("Desconectando do repositorio " + contextoAtual.nomeRepAtual);
             String objName = "rmi://localhost:1099/" + contextoAtual.nomeRepAtual;
             Naming.unbind(objName);
 
@@ -119,15 +135,41 @@ public class Cliente {
         }
     }
 
+    public static void infoRep() throws Exception{
+        try {
+            System.out.println("--------------------------------------------------");
+            List<Part> result = contextoAtual.repAtual.listP(); 
+            System.out.println("Repositorio atual: " + contextoAtual.nomeRepAtual);
+            
+            if(result == null) {
+                System.out.println("Quantidade de parts do repositorio corrente: 0");
+            }
+            else {
+                int qtd = 0;
+                for(Part part : result) {
+                    qtd++;
+                }
+                System.out.println("Quantidade de parts do repositorio corrente: " + qtd);
+
+            }
+            opcoes();
+        }
+        catch (Exception e) {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Erro: " + e.getMessage());
+            opcoes();
+        }      
+    }
+
     public static void listP() throws Exception{
         try {
             System.out.println("--------------------------------------------------");
             List<Part> result = contextoAtual.repAtual.listP(); 
             if(result == null) {
-                System.out.println("Não há nenhuma part no repositório corrente " + contextoAtual.nomeRepAtual + "!");
+                System.out.println("Nao ha nenhuma part no repositorio corrente " + contextoAtual.nomeRepAtual + "!");
             }
             else {
-                System.out.println("Listando as parts do repositório corrente: " + contextoAtual.nomeRepAtual);
+                System.out.println("Listando as parts do repositorio corrente: " + contextoAtual.nomeRepAtual);
                 for(Part part : result) {
                     System.out.println(part);
                 }
@@ -144,8 +186,8 @@ public class Cliente {
     public static void getP() throws Exception {
         try {
             System.out.println("--------------------------------------------------");
-            System.out.println("Repositório corrente: " + contextoAtual.nomeRepAtual);
-            System.out.println("Digite o código da peça a ser buscada: ");
+            System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
+            System.out.println("Digite o codigo da peca a ser buscada: ");
             String codigo = scanner.nextLine();
             int cod = Integer.parseInt(codigo);                        
             Part alteracao = contextoAtual.repAtual.getP(cod);
@@ -156,7 +198,7 @@ public class Cliente {
                 System.out.println("o Part atual foi atualizada!");
             }
             else {
-                System.out.println("Part não encontrada!");
+                System.out.println("Part nao encontrada!");
             }
             opcoes();
         }
@@ -173,7 +215,7 @@ public class Cliente {
             System.out.println(contextoAtual.partAtual);
         }
         else {
-            System.out.println("Não há part");
+            System.out.println("Nao ha part");
         }
         opcoes();
     }
@@ -194,7 +236,7 @@ public class Cliente {
             System.out.println(subparts);
         }
         else {
-            System.out.println("Não há subparts");
+            System.out.println("Nao ha subparts");
         }
         opcoes();
     }
@@ -209,11 +251,11 @@ public class Cliente {
     public static void addSubPart() throws Exception {
         try {
             System.out.println("--------------------------------------------------");
-            System.out.println("Digite o nome da peça a ser adicionada na subpeça: ");
+            System.out.println("Digite o nome da peca a ser adicionada na subpeca: ");
             String nome = scanner.nextLine();
-            System.out.println("Digite a descrição da peça a ser adicionada: ");
+            System.out.println("Digite a descricao da peca a ser adicionada: ");
             String descricao = scanner.nextLine();
-            System.out.println("Digite a quantidade da peça a ser adicionada: ");
+            System.out.println("Digite a quantidade da peca a ser adicionada: ");
             int quant = Integer.parseInt(scanner.nextLine());
 
             Part p = new Part(nome, descricao);
@@ -232,10 +274,10 @@ public class Cliente {
 
     public static void addP() throws Exception {
         System.out.println("--------------------------------------------------");
-        System.out.println("Repositório corrente: " + contextoAtual.nomeRepAtual);
-        System.out.println("Digite o nome da peça a ser adicionada: ");
+        System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
+        System.out.println("Digite o nome da peca a ser adicionada: ");
         String nome = scanner.nextLine();
-        System.out.println("Digite a descrição da peça a ser adicionada: ");
+        System.out.println("Digite a descricao da peca a ser adicionada: ");
         String descricao = scanner.nextLine();
 
         Part p = new Part(nome, descricao);        
