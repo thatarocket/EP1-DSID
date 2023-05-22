@@ -26,7 +26,7 @@ public class Cliente {
     public static void opcoes() throws Exception{
         System.out.println();
         System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
-        //if(contextoAtual.partAtual != null) System.out.println("Peca corrente: "+ contextoAtual.partAtual.getNome());
+        if(contextoAtual.partAtual != null) System.out.println("Peca corrente: "+ contextoAtual.partAtual.getNome());
 
         System.out.println("--------------------------------------------------");
         System.out.println("Escolha a opcao desejada! (Pelo numero)");
@@ -38,9 +38,10 @@ public class Cliente {
         System.out.println("6 - clearlist");   //  Esvazia a lista de sub-pecas corrente
         System.out.println("7 - addsubpart");  // Adiciona a lista de sub-pecas corrente n unidades da peca corrente
         System.out.println("8 - addp");        // Adiciona uma peca ao reposit´orio corrente.
-        System.out.println("9 - showsub");     // Mostra as subpartes
-        System.out.println("10 - unbind");     // desconectar do repositorio
-        System.out.println("11 - quit");       // Encerra a execucao do cliente
+        System.out.println("9 - qtdsub");
+        System.out.println("10 - showsub");     // Mostra as subpartes
+        System.out.println("11 - unbind");     // desconectar do repositorio
+        System.out.println("12 - quit");       // Encerra a execucao do cliente
         select();
     }
 
@@ -73,12 +74,15 @@ public class Cliente {
                 addP();
                 break;
             case 9:
-                showSub();
+                qtdSub();
                 break;
             case 10:
-                desconectar();
+                showSub();
                 break;
             case 11:
+                desconectar();
+                break;
+            case 12:
                 quit();
             default:
                 System.out.println("Opcao invalida! Coloque uma opcao valida:");
@@ -150,6 +154,7 @@ public class Cliente {
                 for(Part part : result) {
                     qtd++;
                 }
+
                 System.out.println("Quantidade de parts do repositorio corrente: " + qtd);
 
             }
@@ -242,6 +247,10 @@ public class Cliente {
         opcoes();
     }
 
+    public static void qtdSub() throws Exception{
+        opcoes();
+    }
+
     public static void clearList() throws Exception {
         System.out.println("--------------------------------------------------");
         contextoAtual.subtAtual.clear();
@@ -262,7 +271,8 @@ public class Cliente {
             Part p = new Part(nome, descricao);
             //contextoAtual.partAtual = p;
             contextoAtual.subtAtual.put(p,quant);
-            contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
+            //contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
+            //contextoAtual.repAtual.addP(p);
 
             System.out.println("Subpart adicionada com sucesso!");
             opcoes();
@@ -284,8 +294,10 @@ public class Cliente {
 
         Part p = new Part(nome, descricao);        
         contextoAtual.partAtual = p;
-        //contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
+        contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
         contextoAtual.repAtual.addP(contextoAtual.partAtual);
+
+        p.setSubparts(contextoAtual.subtAtual);         // adiciona a lista de sub-pecas corrente na lista de subcomponentes diretos da peca
 
         System.out.println("Part adicionada com sucesso!");
         opcoes();
