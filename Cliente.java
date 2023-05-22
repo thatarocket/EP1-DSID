@@ -131,7 +131,7 @@ public class Cliente {
             contextoAtual.nomeRepAtual = null;
             
             System.out.println("Desconectado com sucesso!");
-            opcoes();
+            conectar();
         }
         catch(Exception e) {
             System.out.println("--------------------------------------------------");
