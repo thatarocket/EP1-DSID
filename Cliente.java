@@ -37,7 +37,7 @@ public class Cliente {
         System.out.println("5 - showp");       //  Mostra atributos da peca corrente.
         System.out.println("6 - clearlist");   //  Esvazia a lista de sub-pecas corrente
         System.out.println("7 - addsubpart");  // Adiciona a lista de sub-pecas corrente n unidades da peca corrente
-        System.out.println("8 - addp");        // Adiciona uma peca ao reposit´orio corrente.
+        System.out.println("8 - addp");        // Adiciona uma peca ao repositorio corrente.
         System.out.println("9 - qtdsub");
         System.out.println("10 - showsub");     // Mostra as subpartes
         System.out.println("11 - unbind");     // desconectar do repositorio
@@ -92,7 +92,10 @@ public class Cliente {
     }
 
     public static void conectar() throws Exception{
+
         try {
+            if(isConnected()) throw new Exception("Se desconecte para conseguir conectar em outro servidor.");
+
             System.out.println("--------------------------------------------------");
             System.out.println("Digite o nome do repositorio: ");
             String nomeRep = scanner.nextLine();
@@ -122,6 +125,7 @@ public class Cliente {
 
     public static void desconectar() throws Exception {
         try {
+            if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
             System.out.println("--------------------------------------------------");
             System.out.println("Desconectando do repositorio " + contextoAtual.nomeRepAtual);
             String objName = "rmi://localhost:"+ contextoAtual.portaAtual +"/" + contextoAtual.nomeRepAtual;
@@ -140,24 +144,19 @@ public class Cliente {
         }
     }
 
+    public static boolean isConnected() throws Exception {
+        if (contextoAtual.nomeRepAtual != null) return true;
+        else return false;
+    }
+
     public static void infoRep() throws Exception{
         try {
             System.out.println("--------------------------------------------------");
             List<Part> result = contextoAtual.repAtual.listP(); 
             System.out.println("Repositorio atual: " + contextoAtual.nomeRepAtual);
             
-            if(result == null) {
-                System.out.println("Quantidade de parts do repositorio corrente: 0");
-            }
-            else {
-                int qtd = 0;
-                for(Part part : result) {
-                    qtd++;
-                }
-
-                System.out.println("Quantidade de parts do repositorio corrente: " + qtd);
-
-            }
+            int qtd = result.size();
+            System.out.println("Quantidade de Parts no repositorio: " + qtd);
             opcoes();
         }
         catch (Exception e) {
@@ -169,6 +168,7 @@ public class Cliente {
 
     public static void listP() throws Exception{
         try {
+            if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
             System.out.println("--------------------------------------------------");
             List<Part> result = contextoAtual.repAtual.listP(); 
             if(result == null) {
@@ -190,7 +190,9 @@ public class Cliente {
     }
 
     public static void getP() throws Exception {
+
         try {
+            if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
             System.out.println("--------------------------------------------------");
             System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
             System.out.println("Digite o codigo da peca a ser buscada: ");
@@ -269,10 +271,7 @@ public class Cliente {
             int quant = Integer.parseInt(scanner.nextLine());
 
             Part p = new Part(nome, descricao);
-            //contextoAtual.partAtual = p;
             contextoAtual.subtAtual.put(p,quant);
-            //contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
-            //contextoAtual.repAtual.addP(p);
 
             System.out.println("Subpart adicionada com sucesso!");
             opcoes();
@@ -285,24 +284,62 @@ public class Cliente {
     }
 
     public static void addP() throws Exception {
-        System.out.println("--------------------------------------------------");
-        System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
+        try {
+            if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
+
+            System.out.println("--------------------------------------------------");
+            System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
+
+            System.out.println("Deseja criar uma nova part ou utilizar uma part existente?");
+            System.out.println(" 1 - Criar uma nova");
+            System.out.println(" 2 - Utilizar uma existente");
+            int resposta = Integer.parseInt(scanner.nextLine());
+            switch(resposta) {
+                case 1: 
+                    criarAddP();
+                    break;
+                case 2:
+                    usarAddp();
+                    break;
+                default:
+                    System.out.println("Resposta inorreta!");
+                    addP();
+                    break;                    
+            }
+            System.out.println("Part adicionada com sucesso!");
+            opcoes();
+        }
+        catch(Exception e) {
+            System.out.println("--------------------------------------------------");
+            System.out.println("Erro: " + e.getMessage());
+            opcoes();
+        }
+       
+    }
+
+    public static void criarAddP() throws Exception{
         System.out.println("Digite o nome da peca a ser adicionada: ");
         String nome = scanner.nextLine();
         System.out.println("Digite a descricao da peca a ser adicionada: ");
         String descricao = scanner.nextLine();
 
-        Part p = new Part(nome, descricao);        
+        Part p = new Part(nome, descricao,contextoAtual.nomeRepAtual);   
+        p.setSubparts(contextoAtual.subtAtual);         // adiciona a lista de sub-pecas corrente na lista de subcomponentes diretos da peca     
         contextoAtual.partAtual = p;
-        contextoAtual.partAtual.setSubparts(contextoAtual.subtAtual);
         contextoAtual.repAtual.addP(contextoAtual.partAtual);
 
-        p.setSubparts(contextoAtual.subtAtual);         // adiciona a lista de sub-pecas corrente na lista de subcomponentes diretos da peca
-
-        System.out.println("Part adicionada com sucesso!");
-        opcoes();
     }
 
+    public static void usarAddp() throws Exception {
+        if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
+        Part partBuscada = contextoAtual.partAtual;
+        if(partBuscada != null) {
+            contextoAtual.repAtual.addP(partBuscada);
+        }
+        System.out.println("Part atual adicionado ao repositorio");
+    }
+    
+    
     public static void quit() throws Exception {
         System.out.println("Saindo do programa...");
         System.exit(0);

@@ -8,11 +8,19 @@ public class Part implements IPart, Serializable {
     private int codigo; //automaticamente gerado
     private String nome;
     private String descricao;
+    private String nomeRep;
     private HashMap<Part, Integer> subparts;
     // primitiva: lista de componentes vazia
 
     public Part() throws RemoteException {
         this.codigo = gerarCodigo();
+    }
+
+    public Part(String nome, String descricao, String nomeRep) throws RemoteException {
+        this.codigo = gerarCodigo();
+        this.nome = nome;
+        this.descricao = descricao;
+        this.nomeRep = nomeRep;
     }
 
     public Part(String nome, String descricao) throws RemoteException {
@@ -41,6 +49,14 @@ public class Part implements IPart, Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getNomeRep() {
+        return nomeRep;
+    }
+
+    public void setNomeRep(String nomeRep) {
+        this.nomeRep = nomeRep;
     }
 
     public String getDescricao() {
@@ -75,11 +91,12 @@ public class Part implements IPart, Serializable {
         }
 
         return String.format(
-            "Codigo: %s\nNome: %s\nDescricao: %s\nSubparts:\n%s",
+            "Codigo: %s\nNome: %s\nDescricao: %s\nSubparts:\n%s\n%s",
             this.codigo,
             this.nome,
             this.descricao,
-            subparts
+            subparts,
+            this.nomeRep != null ? "Nome Repositorio: " + this.nomeRep : ""
         );
     }
 }
