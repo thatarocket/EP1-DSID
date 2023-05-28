@@ -38,10 +38,9 @@ public class Cliente {
         System.out.println("6 - clearlist");   //  Esvazia a lista de sub-pecas corrente
         System.out.println("7 - addsubpart");  // Adiciona a lista de sub-pecas corrente n unidades da peca corrente
         System.out.println("8 - addp");        // Adiciona uma peca ao repositorio corrente.
-        System.out.println("9 - qtdsub");
-        System.out.println("10 - showsub");     // Mostra as subpartes
-        System.out.println("11 - unbind");     // desconectar do repositorio
-        System.out.println("12 - quit");       // Encerra a execucao do cliente
+        System.out.println("9 - showsub");     // Mostra as subpartes
+        System.out.println("10 - unbind");     // desconectar do repositorio
+        System.out.println("11 - quit");       // Encerra a execucao do cliente
         select();
     }
 
@@ -74,15 +73,12 @@ public class Cliente {
                 addP();
                 break;
             case 9:
-                qtdSub();
-                break;
-            case 10:
                 showSub();
                 break;
-            case 11:
+            case 10:
                 desconectar();
                 break;
-            case 12:
+            case 11:
                 quit();
             default:
                 System.out.println("Opcao invalida! Coloque uma opcao valida:");
@@ -246,10 +242,6 @@ public class Cliente {
         else {
             System.out.println("Nao ha subparts");
         }
-        opcoes();
-    }
-
-    public static void qtdSub() throws Exception{
         opcoes();
     }
 
