@@ -45,6 +45,7 @@ public class Cliente {
     }
 
     public static void select() throws Exception {
+        System.out.println("INSIRA A OPCAO DESEJADA: ");
         int input = Integer.parseInt(scanner.nextLine());
         
         switch(input) {
@@ -88,56 +89,33 @@ public class Cliente {
     }
 
     public static void conectar() throws Exception{
-
-        try {
-            if(isConnected()) throw new Exception("Se desconecte para conseguir conectar em outro servidor.");
-
-            System.out.println("--------------------------------------------------");
-            System.out.println("Digite o nome do repositorio: ");
-            String nomeRep = scanner.nextLine();
-
-            System.out.println("Digite o numero da porta: ");
-            int numPorta = Integer.parseInt(scanner.nextLine());
-            
-            String objName = "rmi://localhost:" + numPorta + "/" + nomeRep;
-
-            IPartRepository part = (IPartRepository) Naming.lookup(objName);
-            contextoAtual.repAtual = part;
-            contextoAtual.nomeRepAtual = nomeRep;
-            contextoAtual.portaAtual = numPorta;
-
-            System.out.println("Conectado com sucesso!");
-            opcoes();
-        }
-        catch (Exception e) {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Erro: " + e.getMessage());
-            System.out.println("Nome incorreto ou servidor nao encontrado!");
-            System.out.println(contextoAtual.partAtual);
-            if(contextoAtual.partAtual == null) conectar();
-            else opcoes();
-        }
+        if(isConnected()) throw new Exception("Se desconecte para conseguir conectar em outro servidor.");
+        System.out.println("--------------------------------------------------");
+        System.out.println("Digite o nome do repositorio: ");
+        String nomeRep = scanner.nextLine();
+        System.out.println("Digite o numero da porta: ");
+        int numPorta = Integer.parseInt(scanner.nextLine());
+        
+        String objName = "rmi://localhost:" + numPorta + "/" + nomeRep;
+        IPartRepository part = (IPartRepository) Naming.lookup(objName);
+        contextoAtual.repAtual = part;
+        contextoAtual.nomeRepAtual = nomeRep;
+        contextoAtual.portaAtual = numPorta;
+        System.out.println("Conectado com sucesso!");
+        opcoes();
     }
 
     public static void desconectar() throws Exception {
-        try {
-            if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
-            System.out.println("--------------------------------------------------");
-            System.out.println("Desconectando do repositorio " + contextoAtual.nomeRepAtual);
-            String objName = "rmi://localhost:"+ contextoAtual.portaAtual +"/" + contextoAtual.nomeRepAtual;
-            Naming.unbind(objName);
-
-            contextoAtual.repAtual = null;
-            contextoAtual.nomeRepAtual = null;
-            
-            System.out.println("Desconectado com sucesso!");
-            conectar();
-        }
-        catch(Exception e) {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Erro: " + e.getMessage());
-            opcoes();
-        }
+        if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
+        System.out.println("--------------------------------------------------");
+        System.out.println("Desconectando do repositorio " + contextoAtual.nomeRepAtual);
+        String objName = "rmi://localhost:"+ contextoAtual.portaAtual +"/" + contextoAtual.nomeRepAtual;
+        Naming.unbind(objName);
+        contextoAtual.repAtual = null;
+        contextoAtual.nomeRepAtual = null;
+        
+        System.out.println("Desconectado com sucesso!");
+        conectar();
     }
 
     public static boolean isConnected() throws Exception {
@@ -146,71 +124,49 @@ public class Cliente {
     }
 
     public static void infoRep() throws Exception{
-        try {
-            System.out.println("--------------------------------------------------");
-            List<Part> result = contextoAtual.repAtual.listP(); 
-            System.out.println("Repositorio atual: " + contextoAtual.nomeRepAtual);
-            
-            int qtd = result.size();
-            System.out.println("Quantidade de Parts no repositorio: " + qtd);
-            opcoes();
-        }
-        catch (Exception e) {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Erro: " + e.getMessage());
-            opcoes();
-        }      
+        System.out.println("--------------------------------------------------");
+        List<Part> result = contextoAtual.repAtual.listP(); 
+        System.out.println("Repositorio atual: " + contextoAtual.nomeRepAtual);
+        
+        int qtd = result.size();
+        System.out.println("Quantidade de Parts no repositorio: " + qtd);
+        opcoes();
     }
 
     public static void listP() throws Exception{
-        try {
-            if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
-            System.out.println("--------------------------------------------------");
-            List<Part> result = contextoAtual.repAtual.listP(); 
-            if(result == null) {
-                System.out.println("Nao ha nenhuma part no repositorio corrente " + contextoAtual.nomeRepAtual + "!");
-            }
-            else {
-                System.out.println("Listando as parts do repositorio corrente: " + contextoAtual.nomeRepAtual);
-                for(Part part : result) {
-                    System.out.println(part);
-                }
-            }
-            opcoes();
+        if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
+        System.out.println("--------------------------------------------------");
+        List<Part> result = contextoAtual.repAtual.listP(); 
+        if(result == null) {
+            System.out.println("Nao ha nenhuma part no repositorio corrente " + contextoAtual.nomeRepAtual + "!");
         }
-        catch (Exception e) {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Erro: " + e.getMessage());
-            opcoes();
+        else {
+            System.out.println("Listando as parts do repositorio corrente: " + contextoAtual.nomeRepAtual);
+            for(Part part : result) {
+                System.out.println(part);
+            }
         }
+        opcoes();
     }
 
     public static void getP() throws Exception {
-
-        try {
-            if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
-            System.out.println("--------------------------------------------------");
-            System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
-            System.out.println("Digite o codigo da peca a ser buscada: ");
-            String codigo = scanner.nextLine();
-            int cod = Integer.parseInt(codigo);                        
-            Part alteracao = contextoAtual.repAtual.getP(cod);
-            
-            if(alteracao != null) {
-                System.out.println("Part encontrada!");
-                contextoAtual.partAtual = alteracao;
-                System.out.println("o Part atual foi atualizada!");
-            }
-            else {
-                System.out.println("Part nao encontrada!");
-            }
-            opcoes();
+        if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
+        System.out.println("--------------------------------------------------");
+        System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
+        System.out.println("Digite o codigo da peca a ser buscada: ");
+        String codigo = scanner.nextLine();
+        int cod = Integer.parseInt(codigo);                        
+        Part alteracao = contextoAtual.repAtual.getP(cod);
+        
+        if(alteracao != null) {
+            System.out.println("Part encontrada!");
+            contextoAtual.partAtual = alteracao;
+            System.out.println("o Part atual foi atualizada!");
         }
-        catch(Exception e) {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Erro: " + e.getMessage());
-            opcoes();
+        else {
+            System.out.println("Part nao encontrada!");
         }
+        opcoes();
     }
 
     public static void showP() throws Exception {
@@ -253,60 +209,42 @@ public class Cliente {
     }
 
     public static void addSubPart() throws Exception {
-        try {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Digite o nome da peca a ser adicionada na subpeca: ");
-            String nome = scanner.nextLine();
-            System.out.println("Digite a descricao da peca a ser adicionada: ");
-            String descricao = scanner.nextLine();
-            System.out.println("Digite a quantidade da peca a ser adicionada: ");
-            int quant = Integer.parseInt(scanner.nextLine());
-
-            Part p = new Part(nome, descricao);
-            contextoAtual.subtAtual.put(p,quant);
-
-            System.out.println("Subpart adicionada com sucesso!");
-            opcoes();
-        }
-        catch(Exception e) {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Erro: " + e.getMessage());
-            opcoes();
-        }
+        System.out.println("--------------------------------------------------");
+        System.out.println("Digite o nome da peca a ser adicionada na subpeca: ");
+        String nome = scanner.nextLine();
+        System.out.println("Digite a descricao da peca a ser adicionada: ");
+        String descricao = scanner.nextLine();
+        System.out.println("Digite a quantidade da peca a ser adicionada: ");
+        int quant = Integer.parseInt(scanner.nextLine());
+        Part p = new Part(nome, descricao);
+        contextoAtual.subtAtual.put(p,quant);
+        System.out.println("Subpart adicionada com sucesso!");
+        opcoes();
     }
 
     public static void addP() throws Exception {
-        try {
-            if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
-
-            System.out.println("--------------------------------------------------");
-            System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
-
-            System.out.println("Deseja criar uma nova part ou utilizar uma part existente?");
-            System.out.println(" 1 - Criar uma nova");
-            System.out.println(" 2 - Utilizar uma existente");
-            int resposta = Integer.parseInt(scanner.nextLine());
-            switch(resposta) {
-                case 1: 
-                    criarAddP();
-                    break;
-                case 2:
-                    usarAddp();
-                    break;
-                default:
-                    System.out.println("Resposta inorreta!");
-                    addP();
-                    break;                    
-            }
-            System.out.println("Part adicionada com sucesso!");
-            opcoes();
+        if(!isConnected()) throw new Exception("Voce nao esta conectado em um servidor!!");
+        System.out.println("--------------------------------------------------");
+        System.out.println("Repositorio corrente: " + contextoAtual.nomeRepAtual);
+        System.out.println("Deseja criar uma nova part ou utilizar uma part existente?");
+        System.out.println(" 1 - Criar uma nova");
+        System.out.println(" 2 - Utilizar uma existente");
+        System.out.println("INSIRA A OPCAO ESCOLHIDA: ");
+        int resposta = Integer.parseInt(scanner.nextLine());
+        switch(resposta) {
+            case 1: 
+                criarAddP();
+                break;
+            case 2:
+                usarAddp();
+                break;
+            default:
+                System.out.println("Resposta inorreta!");
+                addP();
+                break;                    
         }
-        catch(Exception e) {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Erro: " + e.getMessage());
-            opcoes();
-        }
-       
+        System.out.println("Part adicionada com sucesso!");
+        opcoes();
     }
 
     public static void criarAddP() throws Exception{
